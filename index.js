@@ -13,9 +13,10 @@ step();
 
 
 function step() {
-	var url = pages.shift();
+	var page = pages.shift()
+		url = page && page.url || page;
 
-	if (!url) {
+	if (!page) {
 		console.log('Saving file comics.json');
 		fs.writeFile('comics.json', JSON.stringify(comics), function(err) {
 			if (err)
@@ -24,9 +25,9 @@ function step() {
 				console.log('File comics.json saved succesfully');
 		});
 	} else {
-		console.log('loading page', url.url || url);
+		console.log('loading page', url);
 
-		request(url, function(error, response, html) {
+		request(page, function(error, response, html) {
 			if (error || response.statusCode != 200) {
 				console.error(error, 'status:', response);
 				return;
@@ -39,12 +40,12 @@ function step() {
 
 				comics.push({
 					title: $cover.attr('alt'),
-					cover: urls.resolve(baseUrl, $cover.attr('src')),
+					cover: urls.resolve(url, $cover.attr('src')),
 					outDate: $item.find('.desc h3').first().text(),
 					price: $item.find('.price strong').text(),
 					publisher: $item.find('.logo_brand img').attr('alt'),
 					subtitle: $item.find('.subtitle').text(),
-					itemUrl: urls.resolve(baseUrl, $item.find('a.detail').attr('href'))
+					itemUrl: urls.resolve(url, $item.find('a.detail').attr('href'))
 				});
 			});
 
